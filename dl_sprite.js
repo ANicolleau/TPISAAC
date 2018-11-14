@@ -10,7 +10,7 @@ const download = require('images-downloader').images
 
 //pour afficher les images dans la console
 const pngStringify = require('console-png')
-const image = require('fs').readFileSync(__dirname + '/img/characters/blue_baby.png')
+const fs = require('fs')
 
 // option pour dl, essayer de mettre le tableau de sprites
 // créer le même chemin dans ton dossier ou tu mets le scripts img/characters et img/boss pour save les images
@@ -23,8 +23,11 @@ let spritBoss = {
     url: []
 }
 
+let compteur = 0
+
 const destChar = './img/boss'
 const destBoss = './img/characters'
+let imageChar = __dirname +'/img/characters/image_'
 
 // Init
 let api_char = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
@@ -55,14 +58,39 @@ Promise.all([boss, boss2, personnage])
     download(spritCharacter.url, destBoss)
     .then(result => {
         console.log('Images downloaded', result);	
+    }).then(function(values){
+        for(let i=0; i<10000; i++){
+            //permet de vérifier si les images éxiste est les renommes à partir de 1
+            fs.stat(imageChar+i+'.png', function(err,stat){
+                if(err == null && compteur < 14){
+                    compteur += 1
+                    fs.rename(imageChar+i+'.png',imageChar+compteur+'.png')
+                    console.log(compteur)
+                    
+                }
+                
+            })
+        }
+        
+    }).then(function(values){
+        for(let i = 1; i<14;i++){
+        const image = require('fs').readFileSync(__dirname + '/img/characters/image_'+i+'.png')
+ 
+    pngStringify(image, function(err, string){
+        if (err) throw err;
+        console.log(string);
     })
-    .catch(error => console.log("downloaded error", error))
+    }
 })
+    .catch(error => console.log("downloaded error", error))
+}).catch(function(err){
+    console.log(err)
+})
+
+
+
 
 // faire vérification pour que les images ne se dl pas si elles éxistent
 // Afficher plusieurs images dans la console, à l'heure actuelle une seule (boucle for ? mais ducoup rename les images en 1,2,3,4... ?)
 
-pngStringify(image, function(err, string){
-    if (err) throw err;
-    console.log(string);
-})
+
