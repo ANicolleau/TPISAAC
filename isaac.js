@@ -1,10 +1,21 @@
-const axios = require('axios');
-const asciify = require('asciify-image')
+//npm install --save console-png
+//https://www.npmjs.com/package/console-png?activeTab=readme
 
+//npm install axios
+
+
+const axios = require('axios');
+const pngStringify = require('console-png')
+
+// il te faut une image appelé blue_baby dans le dossier /img/character pour que ça fonctionne
+const image = require('fs').readFileSync(__dirname + '/img/characters/blue_baby.png')
+
+
+//init
 const options = {
     fit: 'box',
     width: 20,
-    height: 5cd,
+    height: 5,
 }
 
 let data = {
@@ -61,41 +72,12 @@ Promise.all([boss, boss2, personnage, item1, item2, item3, item4, item5, item6, 
         getDataName(values, 15, data.monsterName)
         console.log(data)
         }
+
+      
         
     )
-
-    asciify('img/characters/isaac.png', options, function(err,asciified){
+    
+    pngStringify(image, function(err, string){
         if (err) throw err;
-        
-        console.log(asciified);
+        console.log(string);
     })
-
-// asciify pour les sprites
-
-/*Promise.all([boss, boss2, personnage])
-    .then(function (values){
-        for (let nameBoss of values[0].data.data){
-            data.bossName.push(nameBoss.name)
-        }
-        for (let nameBoss of values[1].data.data){
-            data.bossName.push(nameBoss.name)
-        }
-        for (let nameCharacter of values[2].data.data){
-            data.characterName.push(nameCharacter.name)
-        }
-            console.log(data)
-    })*/
-
-
-
-
-
-
-/*axios.get('https://isaac.jamesmcfadden.co.uk/api/v1/boss')
-    .then(function(bosses) {
-        boss = bosses.data
-        console.log(boss)
-    })
-    .catch(function (error){
-    console.log(error)
-})*/
