@@ -1,83 +1,140 @@
-//npm install --save console-png
-//https://www.npmjs.com/package/console-png?activeTab=readme
+#!/usr/bin/node node
 
-//npm install axios
-
-
-const axios = require('axios');
-const pngStringify = require('console-png')
-
-// il te faut une image appelé blue_baby dans le dossier /img/character pour que ça fonctionne
-const image = require('fs').readFileSync(__dirname + '/img/characters/blue_baby.png')
+/*
+Modules:
+commander
+axios
+sqlite
+path
+*/
 
 
-//init
-const options = {
-    fit: 'box',
-    width: 20,
-    height: 5,
-}
+// https://www.npmjs.com/package/commander
+// http://www.sqlitetutorial.net/sqlite-nodejs/connect/
 
+
+const program = require('commander');
+const sqlite3 = require('sqlite3').verbose();
+ 
+program
+  .version('0.1.0')
+  .option('init', 'Initialise les Bases de données')
+  .option('-C, --characters-list', 'Affiche la liste des personnages')
+  .parse(process.argv);
+ 
+if (program.init) init();
+if (program.charactersList) console.log("list perso")
+
+const axios = require("axios");
+const url = "https://isaac.jamesmcfadden.co.uk/api/v1/"
 let data = {
-    bossName : [],
-    characterName : [],
-    itemName : [],
-    monsterName : []
+    bosses:[],
+    characters:[],
+    items:[]
+};
 
-}
+const boss1 = axios.get(url+'boss?page=1')
+const boss2 = axios.get(url+'boss?page=2')
+const character = axios.get(url+'character')
+const item1 = axios.get(url+'item?page=1');
+const item2 = axios.get(url+'item?page=2');
+const item3 = axios.get(url+'item?page=3');
+const item4 = axios.get(url+'item?page=4');
+const item5 = axios.get(url+'item?page=5');
+const item6 = axios.get(url+'item?page=6');
+const item7 = axios.get(url+'item?page=7');
+const item8 = axios.get(url+'item?page=8');
+const item9 = axios.get(url+'item?page=9');
 
-let api_boss = 'https://isaac.jamesmcfadden.co.uk/api/v1/boss?page='
-let api_char = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
-let api_item = 'http://isaac.jamesmcfadden.co.uk/api/v1/item?page='
-let api_monster = 'https://isaac.jamesmcfadden.co.uk/api/v1/monster?page='
+
+const path = require('path')
+const dbPath = path.resolve(__dirname, 'toto.db')
+const db = new sqlite3.Database(dbPath)
 
 
-function getDataName (values, nbData, obj){
-    for (let name of values[nbData].data.data) {
-        obj.push(name.name)
+Promise.all([boss1, boss2, character, item1, item2, item3, item4, item5, item6, item7, item8, item9 ])
+.then(function (response){
+    getData(data.bosses, response[0])
+    getData(data.bosses, response[1])
+    getData(data.characters, response[2])
+    for(let i=3; i<12; i++)
+        getData(data.items, response[i])
+}).catch(function (response){
+
+})
+
+function getData(variable ,response){
+    for(let tmp of response.data.data){
+        variable.push(tmp.name) 
     }
-
 }
 
-let boss =  axios.get(api_boss + 1 )
-let boss2 = axios.get(api_boss + 2)
-let personnage = axios.get(api_char)
-let item1 = axios.get(api_item + 1)
-let item2 = axios.get(api_item + 2)
-let item3 = axios.get(api_item + 3)
-let item4 = axios.get(api_item + 4)
-let item5 = axios.get(api_item + 5)
-let item6 = axios.get(api_item + 6)
-let item7 = axios.get(api_item + 7)
-let item8 = axios.get(api_item + 8)
-let item9 = axios.get(api_item + 9)
-let monster1 = axios.get(api_monster + 1)
-let monster2 = axios.get(api_monster + 2)
-let monster3 = axios.get(api_monster + 3)
-let monster4 = axios.get(api_monster + 4)
 
 
-Promise.all([boss, boss2, personnage, item1, item2, item3, item4, item5, item6, item7, item8, item9, monster1, monster2, monster3, monster4])
-    .then(function (values){
-        getDataName(values, 0, data.bossName)
-        getDataName(values, 1, data.bossName)
-        getDataName(values, 2, data.characterName)
-        for(let i=3; i<12; i++){
-        getDataName(values, i, data.itemName)
-        }
-        for(let i = 11; i<16 ; i++){} 
-        getDataName(values, 12, data.monsterName)
-        getDataName(values, 13, data.monsterName)
-        getDataName(values, 14, data.monsterName)
-        getDataName(values, 15, data.monsterName)
-        console.log(data)
-        }
+function createDB(){
+    let sql = `CREATE TABLE characters (
+        character_id integer PRIMARY KEY,
+        name text NOT NULL
+        );`;
+    try{
+        db.run(sql)
+    }catch(e){
+        console.log(e.message)
+    }
+}
 
-      
-        
-    )
-    
-    pngStringify(image, function(err, string){
-        if (err) throw err;
-        console.log(string);
-    })
+
+function insertDB(name){
+    let sql = `INSERT INTO characters (name)
+        VALUES
+        ('`+name+`');`;
+    try{
+        db.run(sql)
+    }catch(e){
+        console.log(e.message)
+    }
+}
+
+function init(){
+    createDB()
+    data.name.forEach(insertDB(this))
+    db.close()
+}
+
+let sql3 = `SELECT
+        character_id,
+        name
+        FROM
+        characters;`
+
+db.all(sql3, [], (err, rows) => {
+    if (err) {
+    throw err;
+    }
+    rows.forEach((row) => {
+    console.log(row);
+    });
+});
+
+
+/*
+axios.get(url+'character')
+.then(function (response){
+    test.character=response.data.data
+    console.log(test)
+}).catch(function (response){
+    console.log(response)
+});
+*/
+
+/*
+Arguments
+
+npm install commander --save
+
+
+*/
+
+/* Intéraction avec l'utilisateur : https://github.com/SBoudrias/Inquirer.js/ */
+
+/* https://www.npmjs.com/package/sqlite SQLitei */ 
