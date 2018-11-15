@@ -9,6 +9,7 @@ const download = require('images-downloader').images
 //pour afficher les images dans la console
 const pngStringify = require('console-png')
 const fs = require('fs')
+const resizeImage = require('resize-image')
 
 
 program
@@ -42,6 +43,7 @@ const destBoss = './img/characters'
 
 
 
+
 function getDataName (values, nbData, obj){
     for (let name of values[nbData].data.data) {
         obj.push(name.sprite_url)
@@ -52,7 +54,7 @@ function init(){
 	downloadsprites(rename)
 	console.log('1')
 }
-function downloadsprites (cb){
+function downloadsprites (callback1,callback2){
 
 let api_char = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
 let api_boss = 'https://isaac.jamesmcfadden.co.uk/api/v1/boss?page='
@@ -74,7 +76,8 @@ let personnage = axios.get(api_char)
 	
 	.then(result => {
 		console.log('Images downloaded', result);	
-		cb(result)
+		callback1(result)
+		callback2
 	})
 
 }
@@ -112,6 +115,22 @@ function sprites(){
     }
 
 }
+
+function resize(){
+let img = new Image()
+
+
+img.onload= function () {
+  let data = resizeImage.resize(img, 200, 100, resizeImage.PNG);
+  console.log(data);
+};
+for(let i = 0; i<13;i++){
+	const image = require('fs').readFileSync(__dirname + '/img/characters/image_'+i+'.png')
+	img.src = image;
+}
+}
+
+
 
 // Récupération des urls
 
