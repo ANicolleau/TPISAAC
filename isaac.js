@@ -33,6 +33,140 @@ let data = {
     items:[]
 };
 
+const statCharacters={
+"???":{
+health:"B, B, B",
+damage:"3.5*(1.05)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.1",
+ luck:"0",
+ startingpickup:"None",
+ startingitem:"The Poop"
+},Azazel:{
+health:"N, N, N",
+damage:"3.5*(1.50)",
+ tears:"+0.5, *1/3",
+ shotspeed:"1",
+ range:"17.75",
+ speed:"1.25",
+ luck:"0",
+ startingpickup:"The Fool",
+ startingitem:"Brimstone, Flight"
+},Cain:{
+health:"R, R",
+damage:"3.5*(1.20)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"17.75",
+ speed:"1.3",
+ luck:"0",
+ startingpickup:"x1 keys, Paper Clip",
+ startingitem:"Lucky Foot"
+},Eden:{
+health:"random",
+damage:"3.5*(1.00) +/- 1.00",
+ tears:"+/- 0.75",
+ shotspeed:"1+/- 0.25",
+ range:"23.75+/-5.00",
+ speed:"1.0+/-0.15",
+ luck:"0+/-1",
+ startingpickup:"x0-2 bombs, x0-1 keys, x0-5 coins, x0-1 trinket, pill, or card",
+ startingitem:"Random active item, Random passive item"
+},Eve:{
+health:"R, R",
+damage:"3.5*(0.75)(*1.00atR)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.23",
+ luck:"0",
+ startingpickup:"None",
+ startingitem:"Whore of Babylon, Dead Bird, Razor Blade"
+},Isaac:{
+ health:"R, R, R",
+damage:"3.5*(1.00)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.0",
+ luck:"0",
+ startingpickup:"x1 bombs",
+ startingitem:"The D6"
+},Judas:{
+health:"R",
+damage:"3.5*(1.35)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.0",
+ luck:"0",
+ startingpickup:"x3 coins",
+ startingitem:"The Book of Belial"
+},Keeper:{
+health:"G, G",
+damage:"3.5*(1.20)",
+ tears:"+18",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"0.85",
+ luck:"-2",
+ startingpickup:"x1 bombs, x1 coins, Store Key",
+ startingitem:"Triple Shot, Wooden Nickel"
+},Lazarus:{
+health:"R, N, N",
+damage:"3.5*(1.00)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.0",
+ luck:"0",
+ startingpickup:"None",
+ startingitem:"Anemic"
+},Lilith:{
+health:"R",
+damage:"3.5*(1.35)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.0",
+ luck:"0",
+ startingpickup:"x3 coins",
+ startingitem:"Blindfolded, Incubus, Cambion Conception, Box of Friends"
+},Magdalene:{
+health:"R, R, R, R",
+damage:"3.5*(1.00)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"0.85",
+ luck:"0",
+ startingpickup:"x1 Speed Up pill",
+ startingitem:"Yum Heart"
+},Samson:{
+health:"R, R, R",
+damage:"3.5*(1.35)",
+ tears:"-0.05",
+ shotspeed:"1.31",
+ range:"28.75",
+ speed:"1.1",
+ luck:"0",
+ startingpickup:"Child's Heart",
+ startingitem:"Bloody Lust"
+},"The Lost":{
+health:"No health",
+damage:"3.5*(1.00)",
+ tears:"+0",
+ shotspeed:"1",
+ range:"23.75",
+ speed:"1.0",
+ luck:"0",
+ startingpickup:"x1 coins",
+ startingitem:"Flight, Spectral tears, D4, Holy Mantle"
+}
+}
+
 const boss1 = axios.get(url+'boss?page=1')
 const boss2 = axios.get(url+'boss?page=2')
 const character = axios.get(url+'character')
@@ -101,20 +235,24 @@ function init(){
     db.close()
 }
 
-let sql3 = `SELECT
+function afficherCharacter(){
+    let sql3 = `SELECT
         character_id,
         name
         FROM
         characters;`
 
-db.all(sql3, [], (err, rows) => {
-    if (err) {
-    throw err;
-    }
-    rows.forEach((row) => {
-    console.log(row);
+    db.all(sql3, [], (err, rows) => {
+        if (err) {
+        throw err;
+        }
+        rows.forEach((row) => {
+        console.log(row);
+        });
     });
-});
+
+}
+
 
 
 /*
