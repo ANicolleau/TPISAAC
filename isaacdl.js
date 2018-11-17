@@ -51,10 +51,9 @@ function getDataName (values, nbData, obj){
 }
 
 function init(){
-	downloadsprites(rename)
-	console.log('1')
+	resize()
 }
-function downloadsprites (callback1,callback2){
+function downloadsprites (callback1){
 
 let api_char = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
 let api_boss = 'https://isaac.jamesmcfadden.co.uk/api/v1/boss?page='
@@ -67,19 +66,14 @@ let personnage = axios.get(api_char)
 		getDataName(values, 0, spritBoss.url)
 		getDataName(values, 1, spritBoss.url)
 		getDataName(values, 2, spritCharacter.url)
-
 		},    
 	).then(function(values){
 		return download(spritCharacter.url, destBoss)
-
 	})
-	
 	.then(result => {
 		console.log('Images downloaded', result);	
 		callback1(result)
-		callback2
 	})
-
 }
 
 function rename(object){
@@ -116,19 +110,26 @@ function sprites(){
 
 }
 
-function resize(){
-let img = new Image()
 
+// remplacer resize par ImageMagick
+async function resize(){
+	let img = new Image(30,40)
+	try{
+		await downloadsprites(rename)
+		for(let i = 0; i<13;i++){
+			const image = require('fs').readFileSync(__dirname + '/img/characters/image_'+i+'.png')
+			img.src = image;
+			img.onload= function () {
+				let data = resizeImage.resize(img, 30, 40, resizeImage.PNG);
+				console.log(data);
+			};
+		}
+	}
+	catch(e){
+		console.log(e)
+	}
+}
 
-img.onload= function () {
-  let data = resizeImage.resize(img, 200, 100, resizeImage.PNG);
-  console.log(data);
-};
-for(let i = 0; i<13;i++){
-	const image = require('fs').readFileSync(__dirname + '/img/characters/image_'+i+'.png')
-	img.src = image;
-}
-}
 
 
 
