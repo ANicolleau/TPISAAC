@@ -21,11 +21,20 @@ const download = require('images-downloader').images
 const pngStringify = require('console-png')
 
 const db_name = "./isaac.db"
+const destBoss = './img/boss'
+const destChar = './img/characters'
 const api_character = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
 const api_boss = 'https://isaac.jamesmcfadden.co.uk/api/v1/boss?page='
+
+
 let object = {
     character_names:[],
-    bosses_names:[]
+    bosses_names:[],
+    sprits:{
+        spritCharacter:{
+
+        }
+    }
 }
 
 // VARIABLES ANTOINE
@@ -36,11 +45,6 @@ let spritCharacter = {
 let spritBoss = {
     url: []
 }
-
-let compteur = 0
-const destBoss = './img/boss'
-const destChar = './img/characters'
-
 
 
 // Program
@@ -60,7 +64,7 @@ if (commander.uninstall) fs.unlinkSync(db_name), console.log("file remove");
 if (commander.listCharacters) ListCharacters();
 if (commander.character) ChoixCharacter();
 if (commander.listBosses) ListBosses();
-if (commander.charSprites) spritesChar();
+if (commander.charSprites) SpritesChar();
 
 
 // Functions
@@ -77,26 +81,39 @@ function Init(){
             .then((response)=>{
                 for(let i = 0; i<response[0].data.data.length; i++){
                     object.character_names.push(response[0].data.data[i].name)
+                    spritCharacter.url.push(response[0].data.data[i].sprite_url)
+                    object.sprits.spritCharacter[response[0].data.data[i].name]=response[0].data.data[i].sprite_url
                 }
                 for(let i = 0; i<response[1].data.data.length; i++){
                     object.bosses_names.push(response[1].data.data[i].name)
+                    spritBoss.url.push(response[1].data.data[i].sprite_url)
+                
                 }
                 for(let i = 0; i<response[2].data.data.length; i++){
                     object.bosses_names.push(response[2].data.data[i].name)
+                    spritBoss.url.push(response[2].data.data[i].sprite_url)
                 }
+                console.log(object.sprits.spritCharacter)
             }).then(()=>{
                 CreateSqlCharacters(database)
                 CreateSqlBosses(database)
+                return download(spritCharacter.url, destChar)
+            }).then((response)=>{
+                console.log('Images Characters downloaded', response);	
+                RenameCharacter(response)
+                return  download(spritBoss.url,destBoss)
+            }).then((response)=>{
+                console.log('Images Boss downloaded', response);
+                RenameBoss(response)
             }).then(()=>{
                 CloseDB(database)
-            })
+            }).catch((response)=>console.log(response))
         }else{
             console.log("Database already exists !")
         }
     } catch(err) { 
         console.error(err)
     }
-    downloadsprites(renameChar, renameBoss)
 }
 
 function CreateSqlCharacters(database){
@@ -280,56 +297,24 @@ function SelectCharacter(name){
         }
         rows.forEach((row) => {
           console.log(row.name);
-          console.log("Health : "+row.health);
-          console.log("Damage : "+row.damage);
-          console.log("Tears : "+row.tears);
-          console.log("Shot Speed : "+row.shotspeed);
-          console.log("Range : "+row.range);
-          console.log("Speed : "+row.speed);
-          console.log("Starting PickUp : "+row.startingpickup);
-          console.log("Starting Item : "+row.startingitem);
           unSprite(row.sprite)
-          
+          setTimeout(() => {
+            console.log("Health : "+row.health);
+            console.log("Damage : "+row.damage);
+            console.log("Tears : "+row.tears);
+            console.log("Shot Speed : "+row.shotspeed);
+            console.log("Range : "+row.range);
+            console.log("Speed : "+row.speed);
+            console.log("Starting PickUp : "+row.startingpickup);
+            console.log("Starting Item : "+row.startingitem);
+          }, 5);
         });
     });
 
     CloseDB(database)
 }
 
-function getDataName (values, nbData, obj){
-    for (let name of values[nbData].data.data) {
-        obj.push(name.sprite_url)
-    }
-}
-function downloadsprites (callback1, callback2){
-
-    let api_char = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
-    let api_boss = 'https://isaac.jamesmcfadden.co.uk/api/v1/boss?page='
-    
-    let boss =  axios.get(api_boss + 1 )
-    let boss2 = axios.get(api_boss + 2)
-    let personnage = axios.get(api_char)
-        Promise.all([boss, boss2, personnage])
-        .then(function (values){
-            getDataName(values, 0, spritBoss.url)
-            getDataName(values, 1, spritBoss.url)
-            getDataName(values, 2, spritCharacter.url)
-            },    
-        ).then(function(values){
-            return download(spritCharacter.url, destChar)
-        })
-        .then(result => {
-            console.log('Images Characters downloaded', result);	
-            callback1(result)
-        }).then(function(values){
-            return download(spritBoss.url,destBoss)
-        }).then(result => {
-            console.log('Images Boss downloaded', result);	
-            callback2(result)
-        })
-}
-
-function renameChar(object){
+function RenameCharacter(object){
 	let imageChar = __dirname +'/img/characters/image_'
 	console.log('début rename personnage')
 	for(let i=0; i<object.length; i++){
@@ -339,13 +324,13 @@ function renameChar(object){
 		//permet de vérifier si les images éxiste est les renommes à partir de 1
 		fs.rename(__dirname+s, imageChar+i+'.png', (err) => {
 			if (err) throw err;
-			console.log('Rename complete!');
-		  });		
+            console.log('Rename complete!');  
+        });		
 	}
 
 }
 
-function renameBoss(object){
+function RenameBoss(object){
 	let imageBoss = __dirname +'/img/boss/image_'
 	console.log('début rename boss')
 	for(let i=0; i<object.length; i++){
@@ -361,9 +346,9 @@ function renameBoss(object){
 
 }
 
-function spritesChar(){
+function SpritesChar(){
 	for(let i = 0; i<13;i++){
-        const image = require('fs').readFileSync(__dirname + '/img/characters/image_'+i+'.png')
+        const image = fs.readFileSync(__dirname + '/img/characters/image_'+i+'.png')
 
         pngStringify(image, function(err, string){
             if (err) throw err;
@@ -373,8 +358,8 @@ function spritesChar(){
 
 }
 
-function unSprite(obj){
-        const image = require('fs').readFileSync(__dirname + obj + '.png')
+function unSprite(object){
+        const image = fs.readFileSync(__dirname + object + '.png')
 
         pngStringify(image, function(err, string){
             if (err) throw err;
