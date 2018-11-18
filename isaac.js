@@ -38,7 +38,6 @@ let object = {
     }
 }
 
-// VARIABLES ANTOINE
 let spritCharacter = {
     url : []
 }
@@ -56,18 +55,16 @@ commander
   .option('-C, --list-characters', 'Show characters list')
   .option('-c, --character', 'Show stat from a character')
   .option('-B, --list-bosses', 'Show bosses list')
-  .option('-U, --uninstall', 'Remove the database')
-  .option('-T, --uninstallSprite', 'Remove the sprite directory')
-  .option('-S --charSprites', 'Affiche les sprites des personnages')
+  .option('-U, --uninstall', 'Remove the database and directory /img')
+  .option('-S --charSprites', 'Show sprite of all characters')
   .parse(process.argv);
  
 if (commander.init) Init();
-if (commander.uninstall) fs.unlinkSync(db_name), console.log("file remove");
+if (commander.uninstall) fs.unlinkSync(db_name), console.log("database removed"), rimraf(__dirname + '/img', function () { console.log('Directory removed'); });
 if (commander.listCharacters) ListCharacters();
 if (commander.character) ChoixCharacter();
 if (commander.listBosses) ListBosses();
 if (commander.charSprites) SpritesChar();
-if (commander.uninstallSprite) rimraf(__dirname + '/img', function () { console.log('Dossier D\'image supprimé'); });
 
 
 // Functions
