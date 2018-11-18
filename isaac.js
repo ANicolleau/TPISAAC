@@ -19,13 +19,14 @@ const inquirer = require('inquirer');
 const fs = require("fs");
 const download = require('images-downloader').images
 const pngStringify = require('console-png')
+const rimraf = require('rimraf');
 
 const db_name = "./isaac.db"
 const destBoss = './img/boss'
 const destChar = './img/characters'
 const api_character = 'https://isaac.jamesmcfadden.co.uk/api/v1/character'
 const api_boss = 'https://isaac.jamesmcfadden.co.uk/api/v1/boss?page='
-
+const dest ='./img'
 
 let object = {
     character_names:[],
@@ -56,6 +57,7 @@ commander
   .option('-c, --character', 'Show stat from a character')
   .option('-B, --list-bosses', 'Show bosses list')
   .option('-U, --uninstall', 'Remove the database')
+  .option('-T, --uninstallSprite', 'Remove the sprite directory')
   .option('-S --charSprites', 'Affiche les sprites des personnages')
   .parse(process.argv);
  
@@ -65,6 +67,7 @@ if (commander.listCharacters) ListCharacters();
 if (commander.character) ChoixCharacter();
 if (commander.listBosses) ListBosses();
 if (commander.charSprites) SpritesChar();
+if (commander.uninstallSprite) rimraf(__dirname + '/img', function () { console.log('Dossier D\'image supprimé'); });
 
 
 // Functions
@@ -76,6 +79,14 @@ function Init(){
             const promise_character = axios.get(api_character)
             const promise_boss1 = axios.get(api_boss+"1")
             const promise_boss2 = axios.get(api_boss+"2")
+
+            if (!fs.existsSync(dest)){
+                console.log('Création des dossiers')
+                fs.mkdirSync(dest);
+                fs.mkdirSync(destChar);
+                fs.mkdirSync(destBoss);
+            }
+            else console.log('Le dossier existe déjà !')
 
             Promise.all([promise_character, promise_boss1, promise_boss2])
             .then((response)=>{
@@ -316,7 +327,7 @@ function SelectCharacter(name){
 
 function RenameCharacter(object){
 	let imageChar = __dirname +'/img/characters/image_'
-	console.log('début rename personnage')
+	console.log('Rename Characters')
 	for(let i=0; i<object.length; i++){
 		let s = object[i].filename
 		if( s.charAt( 0 ) === '.' )
@@ -324,15 +335,16 @@ function RenameCharacter(object){
 		//permet de vérifier si les images éxiste est les renommes à partir de 1
 		fs.rename(__dirname+s, imageChar+i+'.png', (err) => {
 			if (err) throw err;
-            console.log('Rename complete!');  
+ 
         });		
-	}
+    }
+    console.log('Rename Characters complete!'); 
 
 }
 
 function RenameBoss(object){
 	let imageBoss = __dirname +'/img/boss/image_'
-	console.log('début rename boss')
+	console.log('Rename boss')
 	for(let i=0; i<object.length; i++){
 		let s = object[i].filename
 		if( s.charAt( 0 ) === '.' )
@@ -340,9 +352,9 @@ function RenameBoss(object){
 		//permet de vérifier si les images éxiste est les renommes à partir de 1
 		fs.rename(__dirname+s, imageBoss+i+'.png', (err) => {
 			if (err) throw err;
-			console.log('Rename complete!');
 		  });		
-	}
+    }
+    console.log('Rename Boss complete!');
 
 }
 
@@ -367,6 +379,3 @@ function unSprite(object){
         })
 
 }
-
-
-
