@@ -30,3 +30,5 @@ Nous lui avons donné plusieurs fonctionnalités. Lorsqu'on lance le script (nod
 * -U : Supprime la base de données.
 * -T : Supprime les répertoires créés.
 * -S : Affiche le sprite de tous les personnages.
+
+Créé par [Verner Boisson](https://github.com/VernerBoisson) et [Antoine Nicolleau](https://github.com/antoinenicolleau)
